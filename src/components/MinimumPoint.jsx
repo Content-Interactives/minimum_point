@@ -65,6 +65,7 @@ const MinimumPoint = () => {
   const [viewType, setViewType] = useState('formula');
   
   // Practice state
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [practiceData, setPracticeData] = useState(generateParabolaPoints(1, 0, 0));
   const [userAnswerX, setUserAnswerX] = useState('');
   const [userAnswerY, setUserAnswerY] = useState('');
@@ -75,6 +76,7 @@ const MinimumPoint = () => {
   const [currentA, setCurrentA] = useState(1);
   const [currentB, setCurrentB] = useState(0);
   const [currentC, setCurrentC] = useState(0);
+  const [score, setScore] = useState(0);
 
   const generateNewPractice = () => {
     // Generate random coefficients
@@ -109,170 +111,126 @@ const MinimumPoint = () => {
     
     if (xCorrect && yCorrect) {
       setIsCompleted(true);
+      setScore(score + 1);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestion < 4) {
+      setCurrentQuestion(currentQuestion + 1);
+      generateNewPractice();
+    } else {
+      setCurrentQuestion(0);
+      setScore(0);
+      generateNewPractice();
     }
   };
 
   return (
-    <div className="bg-gray-100 p-8 w-full max-w-4xl mx-auto">
-      <Card className="w-full shadow-md bg-white">
-        <div className="bg-sky-50 p-6 rounded-t-lg">
-          <h1 className="text-sky-900 text-2xl font-bold">Minimums in Parabolas</h1>
-          <p className="text-sky-800">Learn about minimum points in quadratic functions!</p>
-        </div>
+    <>
+      <style>{`
+        @property --r {
+          syntax: '<angle>';
+          inherits: false;
+          initial-value: 0deg;
+        }
 
-        <CardContent className="space-y-6 pt-6">
-          {/* Definition Box */}
-          <div className="bg-blue-50 p-4 rounded border border-blue-200">
-            <h2 className="text-blue-900 font-bold mb-2">What is a Minimum Point?</h2>
-            <p className="text-blue-600">
-              The lowest point on a curve is called the "minimum" point. If the curve is a parabola that opens upwards, that point is called the vertex. You can find the minimum or vertex of a curve by identifying it on its graph, or by using the formula:
-            </p>
-            <div className="flex justify-center -mt-1 mb-3">
-              <div className="text-blue-600 text-xl flex items-center justify-center">
-                <span className="mr-2 -mt-1">x = </span>
-                <div className="inline-block">
-                  <div className="border-b border-blue-600">-b</div>
-                  <div>2a</div>
-                </div>
-              </div>
-            </div>
-            <p className="text-blue-600">
-              Practice identifying minimum points below!
-            </p>
-          </div>
+        .glow-button { 
+          min-width: auto; 
+          height: auto; 
+          position: relative; 
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1;
+          transition: all .3s ease;
+          padding: 7px;
+        }
 
-          {/* Examples Section */}
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h2 className="text-xl font-bold mb-4">Example</h2>
-            <div className="flex space-x-4 mb-4">
-              <Button
-                onClick={() => setViewType('formula')}
-                className={`px-4 py-2 rounded ${
-                  viewType === 'formula'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                Formula
-              </Button>
-              <Button
-                onClick={() => setViewType('graph')}
-                className={`px-4 py-2 rounded ${
-                  viewType === 'graph'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                Graph
-              </Button>
-            </div>
+        .glow-button::before {
+          content: "";
+          display: block;
+          position: absolute;
+          background: rgb(250, 245, 255);
+          inset: 2px;
+          border-radius: 4px;
+          z-index: -2;
+        }
 
-            <Card className="border border-gray-200">
-              <CardContent className="p-6">
-                {viewType === 'formula' && (
-                  <div className="space-y-4 pt-4">
-                    <p className="text-lg mb-6">Given: y = x² - 2x + 1</p>
-                    <div>
-                      <p className="font-medium">Step 1: Find x using x = -b/(2a)</p>
-                      <div className="ml-8 flex items-center my-2">
-                        <span className="mr-2">x = </span>
-                        <div className="inline-block mx-1">
-                          <div className="border-b border-black">-(-2)</div>
-                          <div>2(1)</div>
-                        </div>
-                        <span className="mx-2">=</span>
-                        <div className="inline-block mx-1">
-                          <div className="border-b border-black">2</div>
-                          <div>2</div>
-                        </div>
-                        <span className="mx-2">= 1</span>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-medium">Step 2: Find y by plugging x = 1 back into the equation</p>
-                      <p className="ml-8">y = (1)² - 2(1) + 1 = 1 - 2 + 1 = 0</p>
-                    </div>
-                    <p className="font-bold text-green-600 mt-4">Minimum point: (1, 0)</p>
-                  </div>
-                )}
+        .simple-glow {
+          background: conic-gradient(
+            from var(--r),
+            transparent 0%,
+            rgb(0, 255, 132) 2%,
+            rgb(0, 214, 111) 8%,
+            rgb(0, 174, 90) 12%,
+            rgb(0, 133, 69) 14%,
+            transparent 15%
+          );
+          animation: rotating 3s linear infinite;
+          transition: animation 0.3s ease;
+        }
 
-                {viewType === 'graph' && (
-                  <div>
-                    <p className="mb-4 mt-4">To find the minimum point on a graph, look for the lowest point on the curve. Follow these steps:</p>
-                    <ul className="list-disc ml-6 mb-4">
-                      <li>Look for where the curve stops going down and starts going up</li>
-                      <li>Read across to the x-axis to find the x-coordinate</li>
-                      <li>Read up/down to the y-axis to find the y-coordinate</li>
-                    </ul>
-                    <div className="w-full h-64 -ml-4">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart 
-                          data={exampleData}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="x" 
-                            domain={[-5, 5]}
-                            type="number"
-                            tickCount={11}
-                          />
-                          <YAxis 
-                            domain={[-1, 9]}
-                            tickCount={11}
-                          />
-                          <Tooltip labelFormatter={(label) => `x : ${label}`} />
-                          <Line 
-                            type="monotone" 
-                            dataKey="y" 
-                            stroke="#8884d8" 
-                            dot={(props) => {
-                              const isMinimum = props.payload.x === 1;
-                              return isMinimum ? (
-                                <circle 
-                                  cx={props.cx} 
-                                  cy={props.cy} 
-                                  r={12} 
-                                  fill="transparent" 
-                                  style={{ pointerEvents: 'all' }}
-                                />
-                              ) : null;
-                            }}
-                          />
-                          <ReferenceLine x={1} stroke="red" strokeDasharray="3 3" />
-                          <ReferenceLine y={0} stroke="red" strokeDasharray="3 3" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <p className="font-bold text-green-600 mt-4">Minimum point: (1, 0)</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        .simple-glow.stopped {
+          animation: none;
+          background: none;
+        }
+
+        @keyframes rotating {
+          0% {
+            --r: 0deg;
+          }
+          100% {
+            --r: 360deg;
+          }
+        }
+      `}</style>
+      <div className="w-[500px] h-auto mx-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] bg-white rounded-lg overflow-hidden">
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-[#5750E3] text-sm font-medium select-none">Finding Minimum Points in Parabolas</h2>
+            <button
+              onClick={() => {
+                setCurrentQuestion(0);
+                setScore(0);
+                generateNewPractice();
+              }}
+              className="text-gray-500 hover:text-gray-700 text-sm px-3 py-1 rounded border border-gray-300 hover:border-gray-400 transition-colors"
+            >
+              Reset
+            </button>
           </div>
 
           {/* Practice Section */}
           <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-purple-900 font-bold">Practice Time!</h2>
-              <Button 
-                onClick={generateNewPractice}
-                className="bg-sky-500 hover:bg-sky-600 text-white px-4 flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                New Parabola
-              </Button>
+              <h2 className="text-purple-900 font-bold">Question {currentQuestion + 1}</h2>
+              <div className="flex gap-2">
+                {[0, 1, 2, 3, 4].map((num) => (
+                  <div
+                    key={num}
+                    className={`rounded-full transition-all duration-300 ${
+                      num < currentQuestion || (num === currentQuestion && isCompleted) ? 'w-3 h-3 bg-[#008545]' : 
+                      num === currentQuestion ? 'w-2 h-2 bg-[#5750E3] mt-0.5' : 
+                      'w-3 h-3 bg-purple-200'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
-
-            <div className="mb-4">
-              <p className="text-lg font-semibold mb-2">
+            
+            <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+              <p className="font-medium text-sm">Find the minimum point of the quadratic function:</p>
+              <p className="mt-2 font-semibold text-sm">
                 f(x) = {currentA}x² {currentB >= 0 ? '+' : ''}{currentB}x {currentC >= 0 ? '+' : ''}{currentC}
               </p>
-              <div className="w-full h-64 -ml-4">
+              <div className="w-full h-48 mt-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart 
                     data={practiceData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 10, right: 20, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
@@ -286,36 +244,36 @@ const MinimumPoint = () => {
                       tickCount={11}
                     />
                     <Tooltip labelFormatter={(label) => `x : ${label}`} />
-                                              <Line 
-                            type="monotone" 
-                            dataKey="y" 
-                            stroke="#8884d8" 
-                            dot={(props) => {
-                              const x = -currentB / (2 * currentA);
-                              const isMinimum = Math.abs(props.payload.x - x) < 0.1;
-                              return isMinimum ? (
-                                <circle 
-                                  cx={props.cx} 
-                                  cy={props.cy} 
-                                  r={12} 
-                                  fill="transparent" 
-                                  style={{ pointerEvents: 'all' }}
-                                />
-                              ) : null;
-                            }}
+                    <Line 
+                      type="monotone" 
+                      dataKey="y" 
+                      stroke="#8884d8" 
+                      dot={(props) => {
+                        const x = -currentB / (2 * currentA);
+                        const isMinimum = Math.abs(props.payload.x - x) < 0.1;
+                        return isMinimum ? (
+                          <circle 
+                            cx={props.cx} 
+                            cy={props.cy} 
+                            r={12} 
+                            fill="transparent" 
+                            style={{ pointerEvents: 'all' }}
                           />
+                        ) : null;
+                      }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="space-y-4">
-                <p className="text-gray-700 font-medium">Find the minimum point (x, y):</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+              <div className="space-y-4">
                 <div className="flex gap-4 justify-start">
                   <div>
                     <label className="block text-sm text-gray-600">x-coordinate</label>
                     {isXCorrect ? (
-                      <p className="text-green-600 font-bold text-lg">{parseFloat(userAnswerX).toFixed(2)}</p>
+                      <p className="text-[#008545] font-bold text-lg">{parseFloat(userAnswerX).toFixed(2)}</p>
                     ) : (
                       <Input
                         type="number"
@@ -327,14 +285,14 @@ const MinimumPoint = () => {
                           setIsXCorrect(false);
                         }}
                         placeholder="x"
-                        className={`w-32 ${hasChecked && !isXCorrect ? 'border-red-500' : ''}`}
+                        className={`w-32 ${hasChecked && !isXCorrect ? 'border-yellow-500' : ''}`}
                       />
                     )}
                   </div>
                   <div>
                     <label className="block text-sm text-gray-600">y-coordinate</label>
                     {isYCorrect ? (
-                      <p className="text-green-600 font-bold text-lg">{parseFloat(userAnswerY).toFixed(2)}</p>
+                      <p className="text-[#008545] font-bold text-lg">{parseFloat(userAnswerY).toFixed(2)}</p>
                     ) : (
                       <Input
                         type="number"
@@ -346,20 +304,25 @@ const MinimumPoint = () => {
                           setIsYCorrect(false);
                         }}
                         placeholder="y"
-                        className={`w-32 ${hasChecked && !isYCorrect ? 'border-red-500' : ''}`}
+                        className={`w-32 ${hasChecked && !isYCorrect ? 'border-yellow-500' : ''}`}
                       />
                     )}
                   </div>
                 </div>
-                {!isCompleted && (
-                  <div className="flex gap-4 justify-start mt-4">
-                    <Button 
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              {!isCompleted && (
+                <div className="glow-button simple-glow">
+                  <div className="flex gap-2">
+                    <Button
                       onClick={checkAnswer}
-                      className="bg-blue-400 hover:bg-blue-500"
+                      className="bg-[#00783E] hover:bg-[#006633] text-white text-sm px-4 py-2 rounded"
                     >
                       Check
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => {
                         const x = -currentB / (2 * currentA);
                         const y = currentA * x * x + currentB * x + currentC;
@@ -369,30 +332,31 @@ const MinimumPoint = () => {
                         setIsYCorrect(true);
                         setIsCompleted(true);
                       }}
-                      className="bg-gray-400 hover:bg-gray-500"
+                      className="bg-gray-500 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded"
                     >
                       Skip
                     </Button>
                   </div>
-                )}
-              </div>
-
-            {isCompleted && (
-              <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
-                <h3 className="text-green-800 font-bold text-lg mb-1">Great Job!</h3>
-                <p className="text-green-700">
-                  The minimum point is ({parseFloat(userAnswerX).toFixed(2)}, {parseFloat(userAnswerY).toFixed(2)}).
-                  Try another parabola to practice more!
-                </p>
-              </div>
-            )}
+                </div>
+              )}
+              {isCompleted && (
+                <div className="flex items-center gap-3">
+                  <p className="text-[#008545] font-medium text-sm">Great Job!</p>
+                  <div className="glow-button simple-glow">
+                    <Button
+                      onClick={nextQuestion}
+                      className="bg-[#008545] hover:bg-[#00703d] text-white text-sm px-4 py-2 rounded"
+                    >
+                      {currentQuestion >= 4 ? "Start Over" : "Next Question"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </CardContent>
-      </Card>
-      <p className="text-center text-gray-600 mt-4">
-        Understanding minimums in parabolas is crucial for optimization problems in calculus!
-      </p>
-    </div>
+        </div>
+      </div>
+    </>
   );
 };
 
